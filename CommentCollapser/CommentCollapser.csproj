@@ -26,7 +26,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>false</DebugSymbols>
     <Optimize>true</Optimize>
-    <OutputPath>.\bin\Release\</OutputPath>
+    <OutputPath>..\LatestBuild\</OutputPath>
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>4</WarningLevel>
@@ -116,7 +116,10 @@
     <Content Include="..\..\..\..\..\Users\cwheeler\Documents\Visual Studio 2012\Addins\CommentCollapser - For Testing.AddIn">
       <Link>CommentCollapser - For Testing.AddIn</Link>
     </Content>
-    <Content Include="CommentCollapser.AddIn" />
+    <Content Include="CommentCollapser.AddIn">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSHARP.Targets" />
   <PropertyGroup>
