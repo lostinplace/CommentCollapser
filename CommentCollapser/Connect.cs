@@ -20,6 +20,7 @@ namespace CommentCollapser
 		{
 		}
 
+    private static Command tmpCommand=null;
 		/// <summary>Implements the OnConnection method of the IDTExtensibility2 interface. Receives notification that the Add-in is being loaded.</summary>
 		/// <param term='application'>Root object of the host application.</param>
 		/// <param term='connectMode'>Describes how the Add-in is being loaded.</param>
@@ -29,25 +30,15 @@ namespace CommentCollapser
 		{
 			_applicationObject = (DTE2)application;
 			_addInInstance = (AddIn)addInInst;
-			if(connectMode == ext_ConnectMode.ext_cm_UISetup)
+      if (connectMode == ext_ConnectMode.ext_cm_UISetup || connectMode== ext_ConnectMode.ext_cm_Startup)
 			{
 				object []contextGUIDS = new object[] { };
 				Commands2 commands = (Commands2)_applicationObject.Commands;
-				string toolsMenuName = "Tools";
         string editMenuName = "Edit";
 
 				//Place the command on the tools menu.
 				//Find the MenuBar command bar, which is the top-level command bar holding all the main menu items:
 				Microsoft.VisualStudio.CommandBars.CommandBar menuBarCommandBar = ((Microsoft.VisualStudio.CommandBars.CommandBars)_applicationObject.CommandBars)["MenuBar"];
-
-        foreach (Command item in _applicationObject.Commands)
-        {
-          object[] tmpArr = (object[])item.Bindings;
-          if (tmpArr.Length < -1 || item.Name.Contains("utlining")) 
-          {
-            var d=9;
-          }
-        }
 
 				//Find the Tools command bar on the MenuBar command bar:
         CommandBarControl editControl = menuBarCommandBar.Controls[editMenuName];
@@ -59,7 +50,10 @@ namespace CommentCollapser
         try
 				{
 					//Add a command to the Commands collection:
-					Command command = commands.AddNamedCommand2(_addInInstance, "CommentCollapser", "Collapse XML Comments", "Collapses outlining for all entities then toggles expansion on headers", true, 59, ref contextGUIDS, (int)vsCommandStatus.vsCommandStatusSupported+(int)vsCommandStatus.vsCommandStatusEnabled, (int)vsCommandStyle.vsCommandStyleText, vsCommandControlType.vsCommandControlTypeButton);
+          Command command;
+          if(tmpCommand==null)
+					  tmpCommand = commands.AddNamedCommand2(_addInInstance, "CommentCollapser", "Collapse XML Comments", "Collapses outlining for all entities then toggles expansion on headers", true, 59, ref contextGUIDS, (int)vsCommandStatus.vsCommandStatusSupported+(int)vsCommandStatus.vsCommandStatusEnabled, (int)vsCommandStyle.vsCommandStyleText, vsCommandControlType.vsCommandControlTypeButton);
+          command = tmpCommand;
           object[] BindingArray = new object[]{
             "Text Editor::Ctrl+M, Ctrl+K"
           };
@@ -74,7 +68,6 @@ namespace CommentCollapser
           }
           catch (Exception)
           {
-            
             throw;
           }
 

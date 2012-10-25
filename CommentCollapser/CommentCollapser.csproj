@@ -113,7 +113,7 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\..\..\..\Users\cwheeler\Documents\Visual Studio 2012\Addins\CommentCollapser - For Testing.AddIn">
+    <Content Include="..\..\..\..\Users\cwheeler\Documents\Visual Studio 2010\Addins\CommentCollapser - For Testing.AddIn">
       <Link>CommentCollapser - For Testing.AddIn</Link>
     </Content>
     <Content Include="CommentCollapser.AddIn">
