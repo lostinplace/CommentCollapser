@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?define CONNECT_CLASS_FULL_NAME_VS_2012 = "ADDINNAMESPACE.Connect.COMMAND_NAME " ?>
+<?define CONNECT_CLASS_FULL_NAME_VS = "ADDINNAMESPACE.Connect" ?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  <Product Id="F72BD47C-8E87-41FE-90F7-EE6457E41DC1" Name="MSINAME" Language="1033" Version="1.0.0.0" Manufacturer="MANUFACTURER" UpgradeCode="F72BD47C-8E87-41FE-90F7-EE6457E41DC1">
+    <Package InstallerVersion="200" Compressed="yes" />
+    <Property Id="ROOTDRIVE"><![CDATA[C:\]]></Property>
+    <Media Id="1" Cabinet="media1.cab" EmbedCab="yes" />
+    <Property Id="VS2012INSTALLATIONFOLDER" Secure="yes">
+      <RegistrySearch Id="VS2012InstallationFolderRegistrySearchId" Type="raw"
+                      Root="HKLM" Key="SOFTWARE\Microsoft\VisualStudio\11.0" Name="InstallDir"></RegistrySearch>
+    </Property>
+    <Condition Message="This Wix Add-in project template requires Visual Studio 2012.">
+      Installed OR VS2012INSTALLATIONFOLDER
+    </Condition>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLLOCATION" Name="DIRECTORYNAME">
+          <Component Id="CMPVSEXTENSION" DiskId="1" Guid="GUID">
+            <File Id="EXTENSIONBINARY" Name="EXTENSIONBINARY.dll" Source="$(var.REFERENCEDPROJECTNAME.TargetDir)\EXTENSIONBINARY.dll" Vital="yes" KeyPath="no"  />
+          </Component>
+        </Directory>
+      </Directory>
+      <Directory Id="CommonAppDataFolder">
+        <Directory Id="MicrosoftDirId" Name="Microsoft">
+          <Directory Id="VisualStudioDirId" Name="VisualStudio">
+            <Directory Id="Dir11Id" Name="11.0">
+              <Directory Id="Dir80AddInsId" Name="AddIns">
+                <Component Id="CMPADDIN" Guid="GUID">
+                  <File Id="VsIdeHostAddinFile" Vital="yes" DiskId="1" LongName="ADDINNAME.AddIn" Source="$(var.REFERENCEDPROJECTNAME.ProjectDir)\ADDINNAME.AddIn" />
+                  <util:XmlFile Id="AddAssemblyElement" Action="setValue" File="[#VsIdeTestHostAddinFile]" ElementPath="/Extensibility/Addin/Assembly" Value="[INSTALLLOCATION]EXTENSIONBINARY.dll" Sequence="1" />
+                </Component>
+              </Directory>
+            </Directory>
+          </Directory>
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <Feature Id="ProductFeature" Title="VSWixExtension" Level="1">
+      <ComponentRef	Id="CMPVSEXTENSION"	/>
+      <ComponentRef	Id="CMPADDIN"	/>
+    </Feature>
+    <CustomAction Id="RemoveVS2012AddInCommands" Script="vbscript" Execute="deferred" Return="ignore" Impersonate="yes">
+      <![CDATA[
+            Set dte = CreateObject("VisualStudio.DTE.11.0")
+            For Each cmd In dte.Commands
+               If InStr(cmd, "$(var.CONNECT_CLASS_FULL_NAME_VS_2012)") <> 0 Then
+                  cmd.Delete()
+               End If
+               If InStr(cmd, "$(var.CONNECT_CLASS_FULL_NAME_VS)") <> 0 Then
+                  cmd.Delete()
+               End If
+            Next
+            dte.Quit()
+         ]]>
+    </CustomAction>
+    <InstallExecuteSequence>
+      <Custom Action="RemoveVS2012AddInCommands"
+                 After="RemoveFiles">
+        Installed AND NOT UPGRADINGPRODUCTCODE AND VS2012INSTALLATIONFOLDER
+        AND !ProductFeature=3
+      </Custom>
+    </InstallExecuteSequence>
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLLOCATION" />
+    <UIRef Id="WixUI_Minimal" />
+    <UIRef Id="WixUI_ErrorProgressText" />
+  </Product>
+</Wix>
+<!--
+**********DOCUMENTATION**********
+GUID:Replace every GUID with new Guid.
+MSINAME: Specify MSI Name.
+MANUFACTURER: Specify manufacturer name.
+DIRECTORYNAME: Specify directory name which you want to see in programfiles directory.
+EXTENSIONBINARY: Dll name of Add-in project output.
+REFERENCEDPROJECTNAME: Add-in project name which is referenced in your wix project.
+ADDINNAME: Name of Addin file.
+ADDINNAMESPACE: Namespace used in Connect class of Add-in project.
+COMMAND_NAME: Command used for menu.
+-->
